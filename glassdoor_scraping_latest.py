@@ -37,6 +37,7 @@ driver.implicitly_wait(10)
 wait=WebDriverWait(driver,10)
 driver.get("https://www.glassdoor.com/Job/index.htm")
 driver.maximize_window()
+
 #deleting cookies
 cookies= driver.get_cookies()
 #print(len(cookies))
@@ -54,18 +55,23 @@ time.sleep(2)
 driver.find_element_by_xpath("//header/div[@id='PrimaryDropdown']/ul[1]/li[2]/span[1]").click()
 time.sleep(2)
 outer_list=[['Job Title','Company Name','Job Location','Job Description','Job Posted Time','Current Timestamp','Job Link']]
+#pagination
+# Extracting text of string "Page 1 of 30"
+Element = driver.find_element_by_xpath('//*[@id="MainCol"]/div[2]/div[1]').text
+print(Element)
+# finding index of "of" from string "Page 1 of 30"
+a = Element.index('of')
+# using substring method finding number "30" which is total pages count
+s = Element[a+3:]
+print(s)
+# convert string 30 into data type integer
+total_pages = int(s)
+for p in range(total_pages):
 
-np_sign = True
-i = 1
-while(np_sign):
-    print("Page is "+str(i))
     data = driver.find_elements_by_xpath("//body/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/section[1]/article[1]/div[1]/ul[1]/li")
     l = len(data)
-    #print(l)
     #l = 2
-    d = 0
     for d in range(l):
-        #print("      d is "+str(d)+" and l is "+str(l))
         inner_list = []
         try:
             data[d].click()
@@ -78,7 +84,6 @@ while(np_sign):
             #print("pop 1")
         except:
             print("No pop")
-        #wait.until(EC.element_to_(('//*[@id="JDCol"]/div/article/div/div[1]/div/div/div[1]/div[3]/div[1]/div[2]')))
         #jt = job title
         jt = driver.find_element_by_xpath('//*[@id="JDCol"]/div/article/div/div[1]/div/div/div[1]/div[3]/div[1]/div[2]').text
         inner_list.append(jt)
@@ -115,12 +120,16 @@ while(np_sign):
             jl = ''
         inner_list.append(jl)
         outer_list.append(inner_list)
+    driver.find_element_by_xpath("//ul//li//a[@data-test='pagination-next']").click()
+    time.sleep(3)
+with open("C:\\Users\\goyal\\Downloads\\glassdoorhackathon\\" + keyword + ".csv", 'w', encoding='utf-8',newline='') as CSVfile:
+    w = csv.writer(CSVfile, delimiter=',')
+    for row in outer_list:
+        w.writerow(row)
 
-        with open("C:\\Users\\goyal\\Downloads\\glassdoorhackathon\\" + keyword + ".csv", 'w', encoding='utf-8',newline='') as CSVfile:
-            w = csv.writer(CSVfile, delimiter=',')
-            for row in outer_list:
-                w.writerow(row)
 
+
+''''
     #next page
     try:
         np_sign = driver.find_element_by_xpath('//*[@id="FooterPageNav"]/div/ul/li[7]/a').is_enabled()
@@ -135,3 +144,4 @@ print(df)
 #df.to_csv("C:\\Users\\goyal\\Downloads\\glassdoorhackathon\\"+keyword+"_df.csv")
 
 driver.close()
+'''
